@@ -200,14 +200,20 @@ void DrawGame(void)
             // Draw food
             if (Timer(FOOD_INTERVAL))
             {
+                // TODO: Figure out why the circles flicker
                 static int foodIndex = -1;
                 if (foodIndex >= FOOD_AMOUNT) foodIndex = -1;
                 foodArray[foodIndex++].shouldBeDrawn = true;
                 
                 for (int i = 0; i <= foodIndex; i++)
                     if (foodArray[i].shouldBeDrawn == true) DrawCircle(foodArray[i].position.x, foodArray[i].position.y, foodArray[i].radius, RED);
+                
+                // Even this doesn't work, the circle still flickers
+                // DrawCircle(foodArray[32].position.x, foodArray[32].position.y, foodArray[32].radius, RED);
             }
             
+            // This does work so the problem must be Timer()
+            // DrawCircle(foodArray[33].position.x, foodArray[33].position.y, foodArray[33].radius, RED);
             // Handle pausing
             if (pause) DrawText("GAME PAUSED", screenWidth / 2 - MeasureText("GAME PAUSED", 40)/2, screenHeight/2 - 40, 40, GRAY);
         }
@@ -234,6 +240,7 @@ void UpdateDrawFrame(void)
 //--------------------------------------------------------------------------------------
 void UpdateFood(void)
 {
+    // TODO: Implement collision detection
     static int foodIndex = -1;
     if (foodIndex > FOOD_AMOUNT) foodIndex = -1;
     foodArray[foodIndex++].shouldBeDrawn = true;
