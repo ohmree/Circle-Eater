@@ -66,7 +66,7 @@ static bool pause;
 static Console console;
 static Rectangle textBox;
 
-static Food foodArray[50];
+static Food foodArray[FOOD_AMOUNT];
 //static bool timeOut;
 
 static Player player;
@@ -159,10 +159,8 @@ void InitGame(void)
 
     // Initialize food
     for (int i = 0; i < FOOD_AMOUNT; i++)
-        foodArray[i] = (Food){ (Vector2){ rand() % 800, 394 }, rand() % 15, false, rand() % 10 };
-    
-    // Seed rand()
-    srand (time(NULL));
+        foodArray[i] = (Food){ (Vector2){ GetRandomValue(0, 800), 394 }, rand() % 15, false, rand() % 10 };
+
 
 }
 
@@ -219,24 +217,10 @@ void DrawGame(void)
             // Draw player lives
             for (int i = 0; i < player.life; i++) DrawRectangle(10 + 40*i, 10, 35, 10, LIGHTGRAY);
             
+                 
+            for (int i = 0; i <= FOOD_AMOUNT; i++)
+                if (foodArray[i].shouldBeDrawn == true) DrawCircle(foodArray[i].position.x, foodArray[i].position.y, foodArray[i].radius, RED);
             
-            // Draw food
-            // if (Timer(FOOD_INTERVAL))
-            // {
-                // TODO: Figure out why the circles flicker
-                static int foodIndex = -1;
-                if (foodIndex >= FOOD_AMOUNT) foodIndex = -1;
-                foodArray[foodIndex++].shouldBeDrawn = true;
-                
-                for (int i = 0; i <= foodIndex; i++)
-                    if (foodArray[i].shouldBeDrawn == true) DrawCircle(foodArray[i].position.x, foodArray[i].position.y, foodArray[i].radius, RED);
-                
-                // Even this doesn't work, the circle still flickers
-                // DrawCircle(foodArray[32].position.x, foodArray[32].position.y, foodArray[32].radius, RED);
-            // }
-            
-            // This does work so the problem must be Timer()
-            // DrawCircle(foodArray[33].position.x, foodArray[33].position.y, foodArray[33].radius, RED);
             // Handle pausing
             if (pause) DrawText("GAME PAUSED", screenWidth / 2 - MeasureText("GAME PAUSED", 40)/2, screenHeight/2 - 40, 40, GRAY);
         }
