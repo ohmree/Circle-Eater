@@ -12,7 +12,7 @@
 #include <math.h>
 
 //#define PLATFORM_WEB
-#define DEBUG
+#define MY_DEBUG
 
 #if defined(PLATFORM_WEB)
     #include <emscripten/emscripten.h>
@@ -94,7 +94,7 @@ static void DrawFood(void);
 static bool Timer(int seconds);
 static void DrawConsole(void);
 static void UpdateConsole(void);
-
+static Rectangle GetGround(void);
 //----------------------------------------------------------------------------------
 // Main Enry Point
 //----------------------------------------------------------------------------------
@@ -159,7 +159,13 @@ void InitGame(void)
 
     // Initialize food
     for (int i = 0; i < FOOD_AMOUNT; i++)
-        foodArray[i] = (Food){ (Vector2){ GetRandomValue(0, 800), 394 }, rand() % 15, false, rand() % 10 };
+    {
+        float tempRadius = GetRandomValue(0, /*GetScreenWidth()/80*/ 10);
+    #ifdef MY_DEBUG
+        TraceLog(INFO, FormatText("tempRadius is %d\n", tempRadius));
+    #endif
+        foodArray[i] = (Food){ (Vector2){ GetRandomValue(0, GetScreenWidth()), GetGround().y - tempRadius }, GetRandomValue(0, 15), false, tempRadius };
+    }
 
 
 }
@@ -205,11 +211,11 @@ void DrawGame(void)
         
         if (!gameOver)
         {
-        #if defined(DEBUG)                                                                                                                     
+        #if defined(MY_DEBUG)                                                                                                                     
             DrawText(FormatText("screen: %dx%d\nx: %f\nconsole: %d", screenWidth, screenHeight, player.position.x, console.mouseOnText),  50, 70, 20, BLACK);
         #endif
             // Draw ground
-            DrawRectangle(0, screenHeight - screenHeight/8 + (screenHeight - screenHeight/8)/36, screenWidth, screenHeight/9, GREEN);
+            DrawRectangleRec(GetGround(), GREEN);
             
             // Draw player bar
             DrawRectangle(player.position.x - player.size.x/2, player.position.y - player.size.y/2, player.size.x, player.size.y, BLACK);
@@ -217,7 +223,7 @@ void DrawGame(void)
             // Draw player lives
             for (int i = 0; i < player.life; i++) DrawRectangle(10 + 40*i, 10, 35, 10, LIGHTGRAY);
             
-                 
+            // Draw food
             for (int i = 0; i <= FOOD_AMOUNT; i++)
                 if (foodArray[i].shouldBeDrawn == true) DrawCircle(foodArray[i].position.x, foodArray[i].position.y, foodArray[i].radius, RED);
             
@@ -251,8 +257,11 @@ void UpdateFood(void)
 {
     // TODO: Implement collision detection
     static int foodIndex = -1;
-    if (foodIndex > FOOD_AMOUNT) foodIndex = -1;
-    foodArray[foodIndex++].shouldBeDrawn = true;
+    if (Timer(2))
+    {
+        if (foodIndex >= FOOD_AMOUNT) foodIndex = -1;
+        foodArray[foodIndex++].shouldBeDrawn = true;        
+    }
 }
 
 /// Version with static variable
@@ -307,6 +316,11 @@ void UpdateConsole(void)
         
         if (console.mouseOnText) framesCounter++;
         else framesCounter = 0;
+}
+
+Rectangle GetGround(void)
+{
+    return (Rectangle) { 0, GetScreenHeight() - GetScreenHeight()/8 + (GetScreenHeight() - GetScreenHeight()/8)/36, GetScreenWidth(), GetScreenHeight()/9 };
 }
 
 /// Version with global variable
