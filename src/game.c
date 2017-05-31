@@ -160,7 +160,7 @@ void InitGame(void)
     // Initialize food
     for (int i = 0; i < FOOD_AMOUNT; i++)
     {
-        float tempRadius = GetRandomValue(0, /*GetScreenWidth()/80*/ 10);
+        float tempRadius = GetRandomValue(0, GetScreenWidth()/80);
     #ifdef MY_DEBUG
         TraceLog(INFO, FormatText("tempRadius is %d\n", tempRadius));
     #endif
