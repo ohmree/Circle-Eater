@@ -25,6 +25,8 @@
 #define PLAYER_MAX_LIFE         5
 #define FOOD_INTERVAL           1
 #define FOOD_AMOUNT             50
+#define CONSOLE_BG              (Color){ 0, 0, 0, 200 }              // Transparent black
+//#define CONSOLE_FG              (Color){ 255, 255, 255, 200 }        // Transparent white
 
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
@@ -44,6 +46,13 @@ typedef struct Food {
     int value;
 } Food;
 
+typedef struct Console {
+    char* text;
+    bool shown;
+    bool mouseOnText;
+    int letterCount;
+} Console;
+
 //----------------------------------------------------------------------------------
 // Global Variables Definition
 //----------------------------------------------------------------------------------
@@ -53,6 +62,9 @@ static int  screenHeight = 450;
 static int  framesCounter;
 static bool gameOver;
 static bool pause;
+
+static Console console;
+static Rectangle textBox;
 
 static Food foodArray[50];
 //static bool timeOut;
@@ -76,11 +88,12 @@ static void DrawGame(void);         // Draw game (one frame)
 static void UnloadGame(void);       // Unload game
 static void UpdateDrawFrame(void);  // Update and Draw (one frame)
 
-
 // Additional module functions
 static void UpdateFood(void);
 static void DrawFood(void);
 static bool Timer(int seconds);
+static void DrawConsole(void);
+static void UpdateConsole(void);
 
 //----------------------------------------------------------------------------------
 // Main Enry Point
@@ -136,6 +149,14 @@ void InitGame(void)
     player.size = (Vector2){ screenWidth/10, screenHeight/22.5 };
     player.life = PLAYER_MAX_LIFE;
     
+    // Initialize console
+    textBox = (Rectangle){ screenWidth/40, screenHeight-screenHeight/20 - screenHeight/40, screenWidth - screenWidth/20, screenHeight/20 };
+    console.shown = false;
+    console.text = "hh";
+    console.mouseOnText = false;
+    console.letterCount = 0;
+    int framesCounter = 0;
+
     // Initialize food
     for (int i = 0; i < FOOD_AMOUNT; i++)
         foodArray[i] = (Food){ (Vector2){ rand() % 800, 394 }, rand() % 15, false, rand() % 10 };
@@ -148,6 +169,7 @@ void InitGame(void)
 // Update game (one frame)
 void UpdateGame(void)
 {
+    if (IsKeyPressed('C')) console.shown = !console.shown;
     if (!gameOver)
     {
         if (IsKeyPressed('P')) pause = !pause;
@@ -180,12 +202,13 @@ void UpdateGame(void)
 void DrawGame(void)
 {
     BeginDrawing();
+    
         ClearBackground(RAYWHITE);
         
         if (!gameOver)
         {
         #if defined(DEBUG)                                                                                                                     
-            DrawText(FormatText("screen: %dx%d\nx: %f\ny: %f", screenWidth, screenHeight, player.position.x, player.position.y),  50, 70, 20, BLACK);
+            DrawText(FormatText("screen: %dx%d\nx: %f\nconsole: %d", screenWidth, screenHeight, player.position.x, console.mouseOnText),  50, 70, 20, BLACK);
         #endif
             // Draw ground
             DrawRectangle(0, screenHeight - screenHeight/8 + (screenHeight - screenHeight/8)/36, screenWidth, screenHeight/9, GREEN);
@@ -198,8 +221,8 @@ void DrawGame(void)
             
             
             // Draw food
-            if (Timer(FOOD_INTERVAL))
-            {
+            // if (Timer(FOOD_INTERVAL))
+            // {
                 // TODO: Figure out why the circles flicker
                 static int foodIndex = -1;
                 if (foodIndex >= FOOD_AMOUNT) foodIndex = -1;
@@ -210,7 +233,7 @@ void DrawGame(void)
                 
                 // Even this doesn't work, the circle still flickers
                 // DrawCircle(foodArray[32].position.x, foodArray[32].position.y, foodArray[32].radius, RED);
-            }
+            // }
             
             // This does work so the problem must be Timer()
             // DrawCircle(foodArray[33].position.x, foodArray[33].position.y, foodArray[33].radius, RED);
@@ -218,6 +241,8 @@ void DrawGame(void)
             if (pause) DrawText("GAME PAUSED", screenWidth / 2 - MeasureText("GAME PAUSED", 40)/2, screenHeight/2 - 40, 40, GRAY);
         }
         else DrawText("PRESS [ENTER] TO PLAY AGAIN", screenWidth/2 - MeasureText("PRESS [ENTER] TO PLAY AGAIN", 20)/2, screenHeight/2 - 50, 20, GRAY);
+        
+        if (console.shown) DrawConsole();
         
     EndDrawing();
 }
@@ -264,6 +289,40 @@ bool Timer(int seconds)
     }
     
     return false;
+}
+
+void DrawConsole(void)
+{
+    DrawRectangle(0, 2*screenHeight/3, screenWidth, screenHeight/3, CONSOLE_BG);
+    DrawRectangle(screenWidth/40, screenHeight-screenHeight/20 - screenHeight/40, screenWidth - screenWidth/20, screenHeight/20, LIGHTGRAY);
+}
+
+void UpdateConsole(void)
+{
+    if (CheckCollisionPointRec(GetMousePosition(), textBox)) console.mouseOnText = true;
+    else console.mouseOnText = false;
+    
+    if (console.mouseOnText)
+        {
+            int key = GetKeyPressed();
+            
+            if ((key >= 32) && (key <= 125) && (console.letterCount < 8))
+            {
+                console.text[console.letterCount] = (char)key;
+                console.letterCount++;
+            }
+            
+            if (key == KEY_BACKSPACE)
+            {
+                console.letterCount--;
+                console.text[console.letterCount] = '\0';
+                
+                if (console.letterCount < 0) console.letterCount = 0;
+            }
+        }
+        
+        if (console.mouseOnText) framesCounter++;
+        else framesCounter = 0;
 }
 
 /// Version with global variable
