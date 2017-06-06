@@ -29,6 +29,11 @@
 //#define CONSOLE_FG              (Color){ 255, 255, 255, 200 }        // Transparent white
 
 //----------------------------------------------------------------------------------
+// Some Defines
+//----------------------------------------------------------------------------------
+#define ARRAY_LENGTH(arr) (sizeof(array) / sizeof(array[0]))
+
+//----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
 typedef enum GameScreen { LOGO, TITLE, GAMEPLAY, ENDING } GameScreen;
@@ -95,6 +100,9 @@ static bool Timer(int seconds);
 static void DrawConsole(void);
 static void UpdateConsole(void);
 static Rectangle GetGround(void);
+static void SwapInts(int* num1, int* num2);
+static void BubbleSort(int arr[], size_t len);
+
 //----------------------------------------------------------------------------------
 // Main Enry Point
 //----------------------------------------------------------------------------------
@@ -160,14 +168,12 @@ void InitGame(void)
     // Initialize food
     for (int i = 0; i < FOOD_AMOUNT; i++)
     {
-        float tempRadius = GetRandomValue(0, GetScreenWidth()/80);
+        float tempRadius = GetRandomValue(10, GetScreenWidth()/60);
     #ifdef MY_DEBUG
-        TraceLog(INFO, FormatText("tempRadius is %d\n", tempRadius));
+        TraceLog(INFO, FormatText("tempRadius is %f\n", tempRadius));
     #endif
-        foodArray[i] = (Food){ (Vector2){ GetRandomValue(0, GetScreenWidth()), GetGround().y - tempRadius }, GetRandomValue(0, 15), false, tempRadius };
+        foodArray[i] = (Food){ (Vector2){ GetRandomValue(tempRadius, GetScreenWidth() - tempRadius), GetGround().y - tempRadius }, tempRadius, false, GetRandomValue(1, 15) };
     }
-
-
 }
 
 // Update game (one frame)
@@ -224,7 +230,7 @@ void DrawGame(void)
             for (int i = 0; i < player.life; i++) DrawRectangle(10 + 40*i, 10, 35, 10, LIGHTGRAY);
             
             // Draw food
-            for (int i = 0; i <= FOOD_AMOUNT; i++)
+            for (int i = 0; i < FOOD_AMOUNT; i++)
                 if (foodArray[i].shouldBeDrawn == true) DrawCircle(foodArray[i].position.x, foodArray[i].position.y, foodArray[i].radius, RED);
             
             // Handle pausing
@@ -323,16 +329,28 @@ Rectangle GetGround(void)
     return (Rectangle) { 0, GetScreenHeight() - GetScreenHeight()/8 + (GetScreenHeight() - GetScreenHeight()/8)/36, GetScreenWidth(), GetScreenHeight()/9 };
 }
 
-/// Version with global variable
-// static void Timer(void (*func)(void), int seconds)
-// {               
-        // if (startTime == -1) 
-        // {
-            // startTime = clock();
-        // }
-        // else if (((startTime - clock()) / CLOCKS_PER_SEC) > seconds)
-        // {
-            // startTime = clock();
-            // (*func)();
-        // }
-// }
+bool CheckIfEaten(void)
+{
+    //for (int i = 0; i <= FOOD_AMOUNT)
+
+}
+
+void SwapInts(int* num1, int* num2)
+{
+    int temp = 0;
+    
+    temp  = *num2;
+    *num2 = *num1;
+    *num1 = temp;
+
+}
+
+void BubbleSort(int arr[], size_t len)
+{
+    for (int i = len - 1; i > 1; i--)
+    {
+        for (int j = 0; j < 1; j++)
+            if (arr[j] > arr[j+1])
+                SwapInts(&arr[j], &arr[j+1]);
+    }
+}
