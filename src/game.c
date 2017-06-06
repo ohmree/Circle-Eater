@@ -168,9 +168,13 @@ void InitGame(void)
     // Initialize food
     for (int i = 0; i < FOOD_AMOUNT; i++)
     {
+        bool collision = CheckCollisionCircleRec(foodArray[i].position, foodArray[i].radius, (Rectangle) { player.position.x, player.position.y, player.size.x, player.size.y });
         float tempRadius = GetRandomValue(10, GetScreenWidth()/60);
-        do foodArray[i] = (Food){ (Vector2){ GetRandomValue(tempRadius, GetScreenWidth() - tempRadius), GetGround().y - tempRadius }, tempRadius, false, GetRandomValue(1, 15) };
-        while (!CheckCollisionCircleRec(foodArray[i].position, foodArray[i].radius, (Rectangle) { player.position.x, player.position.y, player.size.x, player.size.y }));
+        do
+        { 
+            foodArray[i] = (Food){ (Vector2){ GetRandomValue(tempRadius, GetScreenWidth() - tempRadius), GetGround().y - tempRadius }, tempRadius, false, GetRandomValue(1, 15) }; 
+        }
+        while (!collision);
     #ifdef MY_DEBUG
         TraceLog(INFO, FormatText("%d ", foodArray[i]));
     #endif
