@@ -353,6 +353,5 @@ bool CheckIfEaten(void)
 
 int CompareFoodLocations(const Food* food1, const Food* food2)
 {
-    if (food1->position.x == food2->position.x) return 0;
-    return food1->position.x > food2->position.x ? -1 : 1;
+    return (food1->position.x - food2->position.y);
 }
