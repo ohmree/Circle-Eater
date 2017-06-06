@@ -169,8 +169,8 @@ void InitGame(void)
     for (int i = 0; i < FOOD_AMOUNT; i++)
     {
         float tempRadius = GetRandomValue(10, GetScreenWidth()/60);
-
-        foodArray[i] = (Food){ (Vector2){ GetRandomValue(tempRadius, GetScreenWidth() - tempRadius), GetGround().y - tempRadius }, tempRadius, false, GetRandomValue(1, 15) };
+        do foodArray[i] = (Food){ (Vector2){ GetRandomValue(tempRadius, GetScreenWidth() - tempRadius), GetGround().y - tempRadius }, tempRadius, false, GetRandomValue(1, 15) };
+        while (!CheckCollisionCircleRec(foodArray[i].position, foodArray[i].radius, (Rectangle) { player.position.x, player.position.y, player.size.x, player.size.y }));
     #ifdef MY_DEBUG
         TraceLog(INFO, FormatText("%d ", foodArray[i]));
     #endif
@@ -278,12 +278,8 @@ void UpdateDrawFrame(void)
 void UpdateFood(void)
 {
     // TODO: Implement collision detection
-    static int foodIndex = -1;
-    if (Timer(2))
-    {
-        if (foodIndex >= FOOD_AMOUNT) foodIndex = -1;
-        foodArray[foodIndex++].shouldBeDrawn = true;        
-    }
+    int foodIndex = GetRandomValue(0, FOOD_AMOUNT - 1);
+    if (Timer(2)) foodArray[foodIndex].shouldBeDrawn = true;        
 }
 
 /// Version with static variable
