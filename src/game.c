@@ -12,7 +12,7 @@
 #include <math.h>
 
 //#define PLATFORM_WEB
-//#define MY_DEBUG
+#define MY_DEBUG
 
 #if defined(PLATFORM_WEB)
     #include <emscripten/emscripten.h>
@@ -100,7 +100,7 @@ static bool Timer(int seconds);
 static void DrawConsole(void);
 static void UpdateConsole(void);
 static Rectangle GetGround(void);
-static int  CompareFoodLocations(Food food1, Food food2);
+static int  CompareFoodLocations(const Food* food1, const Food* food2);
 
 
 //----------------------------------------------------------------------------------
@@ -169,11 +169,27 @@ void InitGame(void)
     for (int i = 0; i < FOOD_AMOUNT; i++)
     {
         float tempRadius = GetRandomValue(10, GetScreenWidth()/60);
-    #ifdef MY_DEBUG
-        TraceLog(INFO, FormatText("tempRadius is %f\n", tempRadius));
-    #endif
+
         foodArray[i] = (Food){ (Vector2){ GetRandomValue(tempRadius, GetScreenWidth() - tempRadius), GetGround().y - tempRadius }, tempRadius, false, GetRandomValue(1, 15) };
+    #ifdef MY_DEBUG
+        TraceLog(INFO, FormatText("%d ", foodArray[i]));
+    #endif
     }
+    
+#ifdef MY_DEBUG
+    TraceLog(INFO, "\n\n\n");
+#endif
+
+    qsort(foodArray, FOOD_AMOUNT, sizeof(Food), (*CompareFoodLocations));
+
+#ifdef MY_DEBUG
+    for (int i = 0; i < FOOD_AMOUNT; i++)
+    {
+        TraceLog(INFO, FormatText("%d ", foodArray[i]));    
+    }
+    TraceLog(INFO, "\n\n\n");
+#endif
+
 }
 
 // Update game (one frame)
@@ -335,8 +351,8 @@ bool CheckIfEaten(void)
     
 }
 
-int CompareFoodLocations(Food food1, Food food2)
+int CompareFoodLocations(const Food* food1, const Food* food2)
 {
-    if (food1.position.x == food2.position.x) return 0;
-    return food1.position.x > food2.position.x ? -1 : 1;
+    if (food1->position.x == food2->position.x) return 0;
+    return food1->position.x > food2->position.x ? -1 : 1;
 }
