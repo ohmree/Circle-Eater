@@ -12,7 +12,7 @@
 #include <math.h>
 
 //#define PLATFORM_WEB
-#define MY_DEBUG
+//#define MY_DEBUG
 
 #if defined(PLATFORM_WEB)
     #include <emscripten/emscripten.h>
@@ -31,7 +31,7 @@
 //----------------------------------------------------------------------------------
 // Some Defines
 //----------------------------------------------------------------------------------
-#define ARRAY_LENGTH(arr) (sizeof(array) / sizeof(array[0]))
+#define ARRAY_LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
 
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
@@ -100,8 +100,8 @@ static bool Timer(int seconds);
 static void DrawConsole(void);
 static void UpdateConsole(void);
 static Rectangle GetGround(void);
-static void SwapInts(int* num1, int* num2);
-static void BubbleSort(int arr[], size_t len);
+static int  CompareFoodLocations(Food food1, Food food2);
+
 
 //----------------------------------------------------------------------------------
 // Main Enry Point
@@ -332,25 +332,11 @@ Rectangle GetGround(void)
 bool CheckIfEaten(void)
 {
     //for (int i = 0; i <= FOOD_AMOUNT)
-
-}
-
-void SwapInts(int* num1, int* num2)
-{
-    int temp = 0;
     
-    temp  = *num2;
-    *num2 = *num1;
-    *num1 = temp;
-
 }
 
-void BubbleSort(int arr[], size_t len)
+int CompareFoodLocations(Food food1, Food food2)
 {
-    for (int i = len - 1; i > 1; i--)
-    {
-        for (int j = 0; j < 1; j++)
-            if (arr[j] > arr[j+1])
-                SwapInts(&arr[j], &arr[j+1]);
-    }
+    if (food1.position.x == food2.position.x) return 0;
+    return food1.position.x > food2.position.x ? -1 : 1;
 }
